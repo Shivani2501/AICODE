@@ -1,0 +1,381 @@
+"""
+Breadth-first Search
+"""
+
+
+def breadth_first_search(graph, root, query):
+    queue = [[root]]
+    visited = [root]
+    while len(queue) != 0:
+        path = queue.pop(0)
+        current_node = path[-1]
+
+        if current_node == query:
+            return current_node, path
+
+        for node in graph[current_node]:
+            new_path = list(path)
+            new_path.append(node)
+
+            if node not in visited:
+                visited.append(node)
+                queue.append(new_path)
+    return None
+
+
+if __name__ == '__main__':
+    tree = {
+        0: [1, 2],
+        1: [0, 3, 4],
+        2: [0, 5, 6],
+        3: [1],
+        4: [0, 7],
+        5: [2],
+        6: [2],
+        7: [4]
+    }
+    print(breadth_first_search(tree, 1, 7))
+
+
+
+
+
+
+
+
+#_ASTART ALOGRITH
+
+
+def aStarAlgo(start_node, stop_node):
+    open_set = set(start_node)
+    closed_set = set()
+    g = {}  # store distance from starting node
+    parents = {}         # parents contains an adjacency map of all nodes
+    # distance of starting node from itself is zero
+    g[start_node] = 0
+    # start_node is root node i.e it has no parent nodes
+    # so start_node is set to its own parent node
+    parents[start_node] = start_node
+    while len(open_set) > 0:
+        n = None
+        # node with lowest f() is found
+        for v in open_set:
+            if n == None or g[v] + heuristic(v) < g[n] + heuristic(n):
+                n = v
+        if n == stop_node or Graph_nodes[n] == None:
+            pass
+        else:
+            for (m, weight) in get_neighbors(n):
+                # nodes 'm' not in first and last set are added to first
+                # n is set its parent
+                if m not in open_set and m not in closed_set:
+                    open_set.add(m)
+                    parents[m] = n
+                    g[m] = g[n] + weight
+                # for each node m,compare its distance from start i.e g(m) to the
+                # from start through n node
+                else:
+                    if g[m] > g[n] + weight:
+                        # update g(m)
+                        g[m] = g[n] + weight
+                        # change parent of m to n
+                        parents[m] = n
+                        # if m in closed set,remove and add to open
+                        if m in closed_set:
+                            closed_set.remove(m)
+                            open_set.add(m)
+        if n == None:
+            print('Path does not exist!')
+            return None
+
+        # if the current node is the stop_node
+        # then we begin reconstructin the path from it to the start_node
+        if n == stop_node:
+            path = []
+            while parents[n] != n:
+                path.append(n)
+                n = parents[n]
+            path.append(start_node)
+            path.reverse()
+            print('Path found: {}'.format(path))
+            return path
+        # remove n from the open_list, and add it to closed_list
+        # because all of his neighbors were inspected
+        open_set.remove(n)
+        closed_set.add(n)
+    print('Path does not exist!')
+    return None
+
+# define fuction to return neighbor and its distance
+# from the passed node
+
+
+def get_neighbors(v):
+    if v in Graph_nodes:
+        return Graph_nodes[v]
+    else:
+        return None
+
+
+
+
+
+
+
+#MINMAX
+
+
+
+
+
+import math
+
+
+def minimax(currentDepth, nodeIndex, maxTurn, scores, targetDepth):
+    if(currentDepth == targetDepth):
+        return scores[nodeIndex]
+    if (maxTurn):
+        return max(minimax(currentDepth+1, nodeIndex*2, False, scores, targetDepth),
+                   minimax(currentDepth+1, nodeIndex*2+1, False, scores, targetDepth))
+    else:
+        return min(minimax(currentDepth+1, nodeIndex*2, True, scores, targetDepth),
+                   minimax(currentDepth+1, nodeIndex*2+1, True, scores, targetDepth))
+
+
+scores = []
+leafCount = int(input("Enter the number of leaf nodes: "))
+print("Enter the value of leaf nodes :")
+for i in range(0, leafCount):
+    leaf = int(input())
+    scores.append(leaf)
+
+print(scores)
+treeDepth = int(math.log(len(scores), 2))
+print(treeDepth)
+print("The optimal value is : ", end="")
+print(minimax(0, 0, True, scores, treeDepth))
+
+
+
+
+
+
+
+
+
+
+#8Puzzle
+
+
+
+
+class Node:
+    def __init__(self, data, level, fval):
+
+        # """ Initialize the node with the data, level of the node and the calculated fvalue """
+        self.data = data
+        self.level = level
+        self.fval = fval
+
+    def generate_child(self):
+        """ Generate child nodes from the given node by moving the blank space either in the four directions {up,down,left,right} """
+        x, y = self.find(self.data, '_')
+        """ val_list contains position values for moving the blank space in either of
+        the 4 directions [up,down,left,right] respectively. """
+        val_list = [[x, y-1], [x, y+1], [x-1, y], [x+1, y]]
+        children = []
+        for i in val_list:
+            child = self.shuffle(self.data, x, y, i[0], i[1])
+            if child is not None:
+                child_node = Node(child, self.level+1, 0)
+                children.append(child_node)
+            return children
+
+    def shuffle(self, puz, x1, y1, x2, y2):
+        """ Move the blank space in the given direction and if the position value are out of limits the return None """
+        if x2 >= 0 and x2 < len(self.data) and y2 >= 0 and y2 < len(self.data):
+            temp_puz = []
+            temp_puz = self.copy(puz)
+            temp = temp_puz[x2][y2]
+            temp_puz[x2][y2] = temp_puz[x1][y1]
+            temp_puz[x1][y1] = temp
+            return temp_puz
+        else:
+            return None
+
+    def copy(self, root):
+        """ Copy function to create a similar matrix of the given node"""
+        temp = []
+        for i in root:
+            t = []
+        for j in i:
+            t.append(j)
+        temp.append(t)
+        return temp
+
+    def find(self, puz, x):
+        """ Specifically used to find the position of the blank space """
+        for i in range(0, len(self.data)):
+            for j in range(0, len(self.data)):
+                if puz[i][j] == x:
+                    return i, j
+
+
+class Puzzle:
+    def __init__(self, size):
+        """ Initialize the puzzle size by the specified size,open and closed lists to empty """
+        self.n = size
+        self.open = []
+        self.closed = []
+
+    def accept(self):
+        """ Accepts the puzzle from the user """
+        puz = []
+        for i in range(0, self.n):
+            temp = input().split(" ")
+        puz.append(temp)
+        return puz
+
+    def f(self, start, goal):
+        """ Heuristic Function to calculate hueristic value f(x) = h(x) + g(x) """
+        return self.h(start.data, goal)+start.level
+
+    def h(self, start, goal):
+        """ Calculates the different between the given puzzles """
+        temp = 0
+        for i in range(0, self.n):
+            for j in range(0, self.n):
+                if start[i][j] != goal[i][j] and start[i][j] != '_':
+                    temp += 1
+        return temp
+
+    def process(self):
+        """ Accept Start and Goal Puzzle state"""
+        print("Enter the start state matrix \n")
+        start = self.accept()
+        print("Enter the goal state matrix \n")
+        goal = self.accept()
+
+        start = Node(start, 0, 0)
+        start.fval = self.f(start, goal)
+        """ Put the start node in the open list"""
+        self.open.append(start)
+        print("\n\n")
+        while True:
+            cur = self.open[0]
+
+            print("")
+            print(" | ")
+            print(" | ")
+            print(" \\\'/ \n")
+            for i in cur.data:
+                for j in i:
+                    print(j, end=" ")
+                print("")
+                """ If the difference between current and goal node is 0 we have reached the goal node"""
+            if(self.h(cur.data, goal) == 0):
+                break
+            for i in cur.generate_child():
+                i.fval = self.f(i, goal)
+                self.open.append(i)
+            self.closed.append(cur)
+        del self.open[0]
+        """ sort the open list based on f value """
+        self.open.sort(key=lambda x: x.fval, reverse=False)
+
+
+puz = Puzzle(3)
+puz.process()
+
+
+
+
+
+
+
+
+
+
+#HILL CLIMBING
+
+
+
+
+
+import random
+
+
+def randomSolution(tsp):
+    cities = list(range(len(tsp)))
+    solution = []
+
+    for i in range(len(tsp)):
+        randomCity = cities[random.randint(0, len(cities) - 1)]
+        solution.append(randomCity)
+        cities.remove(randomCity)
+
+    return solution
+
+
+def routeLength(tsp, solution):
+    routeLength = 0
+    for i in range(len(solution)):
+        routeLength += tsp[solution[i - 1]][solution[i]]
+    return routeLength
+
+
+def getNeighbours(solution):
+    neighbours = []
+    for i in range(len(solution)):
+        for j in range(i + 1, len(solution)):
+            neighbour = solution.copy()
+            neighbour[i] = solution[j]
+            neighbour[j] = solution[i]
+            neighbours.append(neighbour)
+    return neighbours
+
+
+def getBestNeighbour(tsp, neighbours):
+    bestRouteLength = routeLength(tsp, neighbours[0])
+    bestNeighbour = neighbours[0]
+    for neighbour in neighbours:
+        currentRouteLength = routeLength(tsp, neighbour)
+        if currentRouteLength < bestRouteLength:
+            bestRouteLength = currentRouteLength
+            bestNeighbour = neighbour
+    return bestNeighbour, bestRouteLength
+
+
+def hillClimbing(tsp):
+    currentSolution = randomSolution(tsp)
+    currentRouteLength = routeLength(tsp, currentSolution)
+    neighbours = getNeighbours(currentSolution)
+    bestNeighbour, bestNeighbourRouteLength = getBestNeighbour(tsp, neighbours)
+
+    while bestNeighbourRouteLength < currentRouteLength:
+        currentSolution = bestNeighbour
+        currentRouteLength = bestNeighbourRouteLength
+        neighbours = getNeighbours(currentSolution)
+        bestNeighbour, bestNeighbourRouteLength = getBestNeighbour(
+            tsp, neighbours)
+
+    return currentSolution, currentRouteLength
+
+
+def main():
+    tsp = [
+        [0, 400, 500, 300],
+        [400, 0, 300, 500],
+        [500, 300, 0, 400],
+        [300, 500, 400, 0]
+    ]
+
+    print(hillClimbing(tsp))
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
